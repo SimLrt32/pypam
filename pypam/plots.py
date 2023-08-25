@@ -448,7 +448,8 @@ def plot_rms_evolution(ds, save_path=None, ax=None, show=True):
     return ax
 
 
-def plot_aggregation_evolution(ds, data_var, mode, save_path=None, ax=None, show=True):
+def plot_aggregation_evolution(ds, data_var, mode, color='steelblue', showfliers=True, save_path=None, ax=None,
+                               show=True):
     """
     Plot the aggregation evolution with boxplot or violin, the limits of the box are Q1 and Q3
 
@@ -460,6 +461,10 @@ def plot_aggregation_evolution(ds, data_var, mode, save_path=None, ax=None, show
         Name of the data variable to plot
     mode : str
         'boxplot' or 'violin'
+    color : str
+        single color for the elements in the plot
+    showfliers : boolean
+        If set to True, the outliers will be plotted in the boxplots
     save_path : string or Path
         Where to save the image
     ax : matplotlib.axes class or None
@@ -477,14 +482,15 @@ def plot_aggregation_evolution(ds, data_var, mode, save_path=None, ax=None, show
 
     df_plot = ds.to_dataframe()
     if mode == 'boxplot':
-        sns.boxplot(data=df_plot, x='time', y=data_var, whis=2.5, color='steelblue')
+        sns.boxplot(data=df_plot, x='time', y=data_var, whis=5, ax=ax, color=color, whiskerprops={'color': color},
+                    boxprops={'alpha': 0.3}, showfliers=showfliers)
     if mode == 'violin':
-        sns.violinplot(data=df_plot, x='time', y=data_var, color='steelblue')
+        sns.violinplot(data=df_plot, x='time', y=data_var, ax=ax, color=color)
 
     ax.set_xlabel('Time')
     ax.set_ylabel(r'%s [$%s$]' % (ds[data_var].standard_name, ds[data_var].units))
-    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
-    plt.xticks(rotation=45)
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.set_xticks(ticks=ax.get_xticks(), labels=ax.get_xticklabels(), rotation=45, ha='right')
     plt.tight_layout()
 
     if save_path is not None:
