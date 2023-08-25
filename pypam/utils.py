@@ -770,6 +770,7 @@ def bin_aggregation(ds, data_var, band=None, freq='D'):
 
     df = ds_copy.to_dataframe()
     df_resampled = df.resample(freq).agg({data_var: list})
+    df_resampled = df_resampled[df_resampled['millidecade_bands'].apply(lambda x: len(x) > 0)]
     df_agg = pd.DataFrame({'time': df_resampled.index, data_var: df_resampled[data_var]})
     df_agg = df_agg.explode(data_var)
     df_agg[data_var] = df_agg[data_var].astype(float)
